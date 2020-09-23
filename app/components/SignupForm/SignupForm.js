@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 import { Link } from 'react-router-dom';
 import * as yup from 'yup';
-import months from 'utils/months'
-import countryCodes from 'utils/countryCode'
+import months from 'utils/months';
+import countryCodes from 'utils/countryCode';
 
 export default function App() {
   const [border, removeBorder] = useState(true);
@@ -15,10 +15,10 @@ export default function App() {
     fetch('http://www.geoplugin.net/json.gp')
       .then(res => res.json())
       .then(data => {
-        setCountryCode(data.geoplugin_countryCode)
-      })
-  })
-  
+        setCountryCode(data.geoplugin_countryCode);
+      });
+  });
+
   const schema = yup.object().shape({
     firstName: yup.string().required(),
     surName: yup.string().required(),
@@ -54,10 +54,10 @@ export default function App() {
       method: 'post',
       body: JSON.stringify(data),
     })
-      .then(function (response) {
+      .then(function(response) {
         return response.json();
       })
-      .then(function (data) {
+      .then(function(data) {
         console.log(data);
       });
   }
@@ -67,14 +67,14 @@ export default function App() {
     apiCall(data); // example api call
   }
 
-  const togglePassword = (e) => {
-    let input = e.target.parentElement.previousSibling
+  const togglePassword = e => {
+    const input = e.target.parentElement.previousSibling;
     if (input.getAttribute('type') === 'password') {
-      input.setAttribute('type', 'text')
+      input.setAttribute('type', 'text');
     } else {
-      input.setAttribute('type', 'password')
+      input.setAttribute('type', 'password');
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} name="myForm" noValidate>
@@ -130,21 +130,21 @@ export default function App() {
           <small
             onClick={() => {
               setCurrentEmail(true);
-              reset({}, {errors: false})
+              reset({}, { errors: false });
             }}
           >
             <a>I want to use my current email address</a>
           </small>
         ) : (
-            <small
-              onClick={() => {
-                setCurrentEmail(false);
-                reset({}, {errors: false})
-              }}
-            >
-              <a>I want to create a new Yahoo email address</a>
-            </small>
-          )}
+          <small
+            onClick={() => {
+              setCurrentEmail(false);
+              reset({}, { errors: false });
+            }}
+          >
+            <a>I want to create a new Yahoo email address</a>
+          </small>
+        )}
       </dt>
       <br />
       <dt>
@@ -157,7 +157,9 @@ export default function App() {
           ref={register}
           className={errors.password && 'errorBorder'}
         />
-        <small id="showHide" onClick={togglePassword}><a>show</a></small>
+        <small id="showHide" onClick={togglePassword}>
+          <a>show</a>
+        </small>
         {errors.password && errors.password.type === 'required' ? (
           <p>This is required</p>
         ) : errors.password && errors.password.type === 'min' ? (
@@ -169,10 +171,14 @@ export default function App() {
         <>
           <div className="flex row2">
             <dt className="countryCode">
-              <select name="countryCode" ref={register} defaultValue={currentCountryCode} >
+              <select
+                name="countryCode"
+                ref={register}
+                defaultValue={currentCountryCode}
+              >
                 {countryCodes.map((i, j) => (
                   <option key={j} value={i.code}>
-                    {i.name + `  ` + `(` + i['dial_code'] + `)`}
+                    {`${i.name}  ` + `(${i.dial_code})`}
                   </option>
                 ))}
               </select>
@@ -189,8 +195,8 @@ export default function App() {
                 <p>This is required</p>
               ) : errors.phoneNumber &&
                 errors.phoneNumber.type === 'matches' ? (
-                    <p>{errors.phoneNumber.message}</p>
-                  ) : null}
+                <p>{errors.phoneNumber.message}</p>
+                ) : null}
             </dt>
           </div>
           <br />
