@@ -1,64 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 import { Link } from 'react-router-dom';
 import * as yup from 'yup';
-
-const month = [
-  {
-    value: 'january',
-    label: 'January',
-  },
-  {
-    value: 'february',
-    label: 'February',
-  },
-  {
-    value: 'march',
-    label: 'March',
-  },
-  {
-    value: 'april',
-    label: 'April',
-  },
-  {
-    value: 'may',
-    label: 'May',
-  },
-  {
-    value: 'june',
-    label: 'June',
-  },
-  {
-    value: 'july',
-    label: 'July',
-  },
-  {
-    value: 'august',
-    label: 'August',
-  },
-  {
-    value: 'september',
-    label: 'September',
-  },
-  {
-    value: 'october',
-    label: 'October',
-  },
-  {
-    value: 'november',
-    label: 'November',
-  },
-  {
-    value: 'december',
-    label: 'December',
-  },
-];
+import months from 'utils/months'
+import countryCodes from 'utils/countryCode'
 
 export default function App() {
   const [border, removeBorder] = useState(true);
   const [currentEmail, setCurrentEmail] = useState(false);
+  const [currentCountryCode, setCountryCode] = useState('');
 
+  useEffect(() => {
+    fetch('http://www.geoplugin.net/json.gp')
+      .then(res => res.json())
+      .then(data => {
+        setCountryCode(data.geoplugin_countryCode)
+      })
+  })
+  
   const schema = yup.object().shape({
     firstName: yup.string().required(),
     surName: yup.string().required(),
@@ -84,7 +44,7 @@ export default function App() {
     year: yup.string().required(),
   });
 
-  const { register, handleSubmit, errors } = useForm({
+  const { register, handleSubmit, errors, reset } = useForm({
     resolver: yupResolver(schema),
     mode: 'onBlur',
   });
@@ -94,10 +54,10 @@ export default function App() {
       method: 'post',
       body: JSON.stringify(data),
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json();
       })
-      .then(function(data) {
+      .then(function (data) {
         console.log(data);
       });
   }
@@ -105,6 +65,15 @@ export default function App() {
   function onSubmit(data) {
     console.log(data); // form data
     apiCall(data); // example api call
+  }
+
+  const togglePassword = (e) => {
+    let input = e.target.parentElement.previousSibling
+    if (input.getAttribute('type') === 'password') {
+      input.setAttribute('type', 'text')
+    } else {
+      input.setAttribute('type', 'password')
+    }
   }
 
   return (
@@ -161,32 +130,34 @@ export default function App() {
           <small
             onClick={() => {
               setCurrentEmail(true);
-              document.myForm.reset();
+              reset({}, {errors: false})
             }}
           >
             <a>I want to use my current email address</a>
           </small>
         ) : (
-          <small
-            onClick={() => {
-              setCurrentEmail(false);
-              document.myForm.reset();
-            }}
-          >
-            <a>I want to create a new Yahoo email address</a>
-          </small>
-        )}
+            <small
+              onClick={() => {
+                setCurrentEmail(false);
+                reset({}, {errors: false})
+              }}
+            >
+              <a>I want to create a new Yahoo email address</a>
+            </small>
+          )}
       </dt>
       <br />
       <dt>
         <input
           type="password"
           name="password"
+          id="password"
           placeholder="Password"
           maxLength="128"
           ref={register}
           className={errors.password && 'errorBorder'}
         />
+        <small id="showHide" onClick={togglePassword}><a>show</a></small>
         {errors.password && errors.password.type === 'required' ? (
           <p>This is required</p>
         ) : errors.password && errors.password.type === 'min' ? (
@@ -198,12 +169,13 @@ export default function App() {
         <>
           <div className="flex row2">
             <dt className="countryCode">
-              <input
-                type="text"
-                name="countryCode"
-                placeholder="Code"
-                ref={register}
-              />
+              <select name="countryCode" ref={register} defaultValue={currentCountryCode} >
+                {countryCodes.map((i, j) => (
+                  <option key={j} value={i.code}>
+                    {i.name + `  ` + `(` + i['dial_code'] + `)`}
+                  </option>
+                ))}
+              </select>
             </dt>
             <dt className="phoneNumber">
               <input
@@ -217,8 +189,8 @@ export default function App() {
                 <p>This is required</p>
               ) : errors.phoneNumber &&
                 errors.phoneNumber.type === 'matches' ? (
-                  <p>{errors.phoneNumber.message}</p>
-                ) : null}
+                    <p>{errors.phoneNumber.message}</p>
+                  ) : null}
             </dt>
           </div>
           <br />
@@ -236,7 +208,7 @@ export default function App() {
             <option selected disabled value="">
               Birth month
             </option>
-            {month.map((i, j) => (
+            {months.map((i, j) => (
               <option key={j} value={i.value}>
                 {i.label}
               </option>
