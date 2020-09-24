@@ -10,6 +10,7 @@ export default function App() {
   const [border, removeBorder] = useState(true);
   const [currentEmail, setCurrentEmail] = useState(false);
   const [currentCountryCode, setCountryCode] = useState('');
+  const [toggleText, setToggleText] = useState('password');
 
   useEffect(() => {
     fetch('http://www.geoplugin.net/json.gp')
@@ -71,8 +72,10 @@ export default function App() {
     const input = e.target.parentElement.previousSibling;
     if (input.getAttribute('type') === 'password') {
       input.setAttribute('type', 'text');
+      setToggleText('text')
     } else {
       input.setAttribute('type', 'password');
+      setToggleText('password')
     }
   };
 
@@ -158,7 +161,7 @@ export default function App() {
           className={errors.password && 'errorBorder'}
         />
         <small id="showHide" onClick={togglePassword}>
-          <a>show</a>
+          <a>{toggleText === 'password' ? 'show' : 'hide'}</a>
         </small>
         {errors.password && errors.password.type === 'required' ? (
           <p>This is required</p>
